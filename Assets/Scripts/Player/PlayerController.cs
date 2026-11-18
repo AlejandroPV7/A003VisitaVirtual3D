@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Cinemachine;
 
 public class PlayerController : MonoBehaviour
 {
@@ -46,6 +47,11 @@ public class PlayerController : MonoBehaviour
 
     Vector3 vel = Vector3.zero;
 
+    [Header("Camera Effects")]
+    [SerializeField] private CinemachineBasicMultiChannelPerlin camNoise;
+    [SerializeField] private float camAmplitude;
+    [SerializeField] private float camFrequency;
+
     private void Awake()
     {
         Instance = this;
@@ -86,6 +92,8 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         movement = transform.forward * gameInputs.yAxisValue + transform.right * gameInputs.xAxisValue;
+
+        ApplyCameraEffects(movement.magnitude);
         
         xRotation = gameInputs.xRotation;
         yRotation = gameInputs.yRotation;
@@ -102,6 +110,12 @@ public class PlayerController : MonoBehaviour
         JumpVoid();
         DownRaycast();
         CrouchVoid();
+    }
+
+    private void ApplyCameraEffects(float movement)
+    {
+        camNoise.AmplitudeGain = Mathf.Lerp(camNoise.AmplitudeGain, movement * camAmplitude, Time.deltaTime);
+        camNoise.FrequencyGain = Mathf.Lerp(camNoise.FrequencyGain, movement * camFrequency, Time.deltaTime);
     }
 
     private void JumpVoid()
